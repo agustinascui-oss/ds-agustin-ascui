@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observatorio Laboral - Atomic Design (Defensa Universitaria)</title>
+  <meta name="description" content="Decisiones de diseño y arquitectura Atomic Design para el Observatorio Laboral con estadísticas oficiales de desocupación del INE Chile." />
+  
+  <!-- Google Fonts: Nunito Sans & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300..900;1,6..12,300..900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandNavy: '#0D2847',
+            brandBlueMedium: '#12365e',
+            brandTeal: '#17859E',
+            brandCyan: '#A5D8E2',
+            brandCream: '#FAF7F2',
+            brandSky: '#EAF4F7',
+          },
+          fontFamily: {
+            sans: ['"Nunito Sans"', 'system-ui', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #0D2847;
+      font-family: 'Nunito Sans', system-ui, sans-serif;
+    }
+    @media print {
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="w-full bg-[#FAF7F2] text-[#0D2847] antialiased selection:bg-[#A5D8E2] selection:text-[#0D2847]">
+
+  <!-- Top Utility Header -->
+  <header class="no-print bg-[#0D2847] text-white py-2.5 px-4 md:px-8 border-b border-[#17859E]/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div class="flex items-center gap-3">
+      <span class="font-bold tracking-tight text-white flex items-center gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#17859E]"></span>
+        Observatorio Laboral
+      </span>
+      <span class="text-slate-400">·</span>
+      <span class="text-slate-300 font-medium">Atomic Design & Periodismo de Datos</span>
+      <span class="hidden sm:inline-block bg-[#17859E]/40 text-[#A5D8E2] px-2 py-0.5 rounded text-[11px] font-mono">
+        INE Chile · ENE
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Toggle All Arguments -->
+      <button id="btnToggleAllArgs" onclick="toggleAllSectionArgs()" class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition-all cursor-pointer text-xs border border-white/20">
+        <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <span id="txtToggleAllArgs">Ver Justificaciones en 5 Secciones</span>
+      </button>
+
+      <!-- Button Rationale Modal trigger -->
+      <button onclick="openWhyModal()" class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0D2847] border border-[#17859E] hover:bg-[#17859E] text-white font-semibold transition-colors cursor-pointer text-xs">
+        <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>¿Por qué cada botón?</span>
+      </button>
+
+      <!-- Print Button -->
+      <button onclick="window.print()" class="px-3 py-1 rounded-lg bg-[#17859E] hover:bg-[#157186] text-white font-semibold transition-colors cursor-pointer">
+        Imprimir / PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-[1580px] mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6">
+
+    <!-- Top Flow Tracker & Demographic Controller Banner -->
+    <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- 5 Level Stepper -->
+      <div class="flex items-center gap-1 sm:gap-3 flex-wrap">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#0D2847] text-white">
+          <span class="w-6 h-6 rounded-full bg-[#17859E] flex items-center justify-center text-xs font-bold">1</span>
+          <span class="text-xs font-bold">Átomos</span>
+        </div>
+        <span class="text-slate-300 font-bold">→</span>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#0D2847] text-white">
+          <span class="w-6 h-6 rounded-full bg-[#17859E] flex items-center justify-center text-xs font-bold">2</span>
+          <span class="text-xs font-bold">Moléculas</span>
+        </div>
+        <span class="text-slate-300 font-bold">→</span>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#0D2847] text-white">
+          <span class="w-6 h-6 rounded-full bg-[#17859E] flex items-center justify-center text-xs font-bold">3</span>
+          <span class="text-xs font-bold">Organismos</span>
+        </div>
+        <span class="text-slate-300 font-bold">→</span>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#0D2847] text-white">
+          <span class="w-6 h-6 rounded-full bg-[#17859E] flex items-center justify-center text-xs font-bold">4</span>
+          <span class="text-xs font-bold">Plantillas</span>
+        </div>
+        <span class="text-slate-300 font-bold">→</span>
+        <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-[#17859E] text-white shadow-xs">
+          <span class="w-6 h-6 rounded-full bg-[#0D2847] flex items-center justify-center text-xs font-bold">5</span>
+          <span class="text-xs font-bold">Páginas</span>
+        </div>
+      </div>
+
+      <!-- Global Demographic Selector -->
+      <div class="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-2xl border border-slate-200">
+        <span class="text-[11px] font-bold text-slate-600 px-2">Desglose:</span>
+        <button id="btnDemoGeneral" onclick="setDemographicMode('general')" class="px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer bg-[#0D2847] text-white shadow-xs">
+          Total País
+        </button>
+        <button id="btnDemoGenero" onclick="setDemographicMode('genero')" class="px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+          Género (M/H)
+        </button>
+        <button id="btnDemoEdad" onclick="setDemographicMode('edad')" class="px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+          Edad (Tramos)
+        </button>
+      </div>
+    </div>
+
+    <!-- 5 ATOMIC DESIGN COLUMNS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-stretch">
+
+      <!-- ==========================================
+           COLUMN 1: ÁTOMOS
+           ========================================== -->
+      <div class="bg-[#FCFAF6] rounded-3xl p-4 sm:p-5 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between space-y-4 shadow-xs">
+        <div class="space-y-4">
+          <!-- Argument Button -->
+          <div class="bg-[#FAF7F2] p-2.5 rounded-2xl border border-slate-200">
+            <button onclick="toggleSectionArg('atomos')" class="w-full bg-[#0D2847] hover:bg-[#12365e] text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer shadow-2xs">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>Argumentar uso: Átomos</span>
+              </span>
+              <span id="argIndicator_atomos" class="text-[10px] text-[#A5D8E2] underline">Ver por qué</span>
+            </button>
+            <div id="argBody_atomos" class="hidden mt-2.5 pt-2.5 border-t border-slate-200 text-xs space-y-2">
+              <div class="bg-[#EAF4F7] p-2 rounded-lg border border-[#A5D8E2]/60">
+                <span class="text-[9px] font-bold text-[#17859E] uppercase tracking-wider block">Justificación Inicial</span>
+                <p class="text-[11px] font-bold text-[#0D2847] italic">«Cada elemento tiene una función reconocible y facilita la interacción»</p>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-tight">
+                <strong>Fundamentación:</strong> Los átomos garantizan una relación unívoca entre forma y función para que cualquier ciudadano identifique elementos interactivos al instante.
+              </p>
+            </div>
+          </div>
+
+          <!-- Color Tokens -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-[#0D2847] flex items-center gap-1.5">
+                <span>🎨</span> Colores (tokens)
+              </span>
+              <span class="text-[10px] text-slate-400">Clic copia HEX</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div onclick="copyHex('#0D2847', 'Primario')" class="group flex flex-col items-center bg-white p-2 rounded-xl border border-slate-200 hover:border-[#17859E] cursor-pointer transition-all">
+                <div class="w-full h-8 rounded-lg bg-[#0D2847] shadow-inner mb-1.5"></div>
+                <span class="text-[11px] font-bold text-[#0D2847]">Primario</span>
+                <span class="text-[9px] font-mono text-slate-400 group-hover:text-[#17859E]">#0D2847</span>
+              </div>
+              <div onclick="copyHex('#17859E', 'Secundario')" class="group flex flex-col items-center bg-white p-2 rounded-xl border border-slate-200 hover:border-[#17859E] cursor-pointer transition-all">
+                <div class="w-full h-8 rounded-lg bg-[#17859E] shadow-inner mb-1.5"></div>
+                <span class="text-[11px] font-bold text-[#0D2847]">Secundario</span>
+                <span class="text-[9px] font-mono text-slate-400 group-hover:text-[#17859E]">#17859E</span>
+              </div>
+              <div onclick="copyHex('#A5D8E2', 'Acento')" class="group flex flex-col items-center bg-white p-2 rounded-xl border border-slate-200 hover:border-[#17859E] cursor-pointer transition-all">
+                <div class="w-full h-8 rounded-lg bg-[#A5D8E2] shadow-inner mb-1.5"></div>
+                <span class="text-[11px] font-bold text-[#0D2847]">Acento</span>
+                <span class="text-[9px] font-mono text-slate-400 group-hover:text-[#17859E]">#A5D8E2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typography -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="text-xs font-bold text-[#0D2847] mb-1">Tipografía</div>
+            <div class="text-4xl font-extrabold text-[#0D2847] leading-none mb-1 font-sans">Aa</div>
+            <div class="text-xs font-bold text-[#0D2847]">Nunito Sans</div>
+            <div class="text-[11px] text-slate-500">Suave, clara y legible</div>
+          </div>
+
+          <!-- Atomic Button -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="text-xs font-bold text-[#0D2847] mb-1.5">Botón</div>
+            <button onclick="cycleNextRegion()" class="w-full bg-[#0D2847] hover:bg-[#12365e] active:scale-98 text-white text-xs font-bold py-2.5 px-4 rounded-full flex items-center justify-between shadow-xs transition-all cursor-pointer">
+              <span>Cambiar región</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <!-- Atomic Badges & Icons -->
+          <div class="pt-2 border-t border-slate-100 space-y-2">
+            <div>
+              <div class="text-xs font-bold text-[#0D2847] mb-1">Etiqueta</div>
+              <span class="inline-block border border-slate-300 rounded-full px-3 py-1 text-xs font-bold text-[#0D2847] bg-white">
+                INE - ENE
+              </span>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-[#0D2847] mb-1">Ícono</div>
+              <div class="flex items-center gap-1.5 text-xs text-[#0D2847]">
+                <div class="w-4 h-4 rounded-full border border-[#0D2847] flex items-center justify-center text-[10px] font-bold">i</div>
+                <span>Más información</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+          Piezas atómicas irreducibles
+        </div>
+      </div>
+
+      <!-- ==========================================
+           COLUMN 2: MOLÉCULAS
+           ========================================== -->
+      <div class="bg-[#FCFAF6] rounded-3xl p-4 sm:p-5 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between space-y-4 shadow-xs">
+        <div class="space-y-4">
+          <!-- Argument Button -->
+          <div class="bg-[#FAF7F2] p-2.5 rounded-2xl border border-slate-200">
+            <button onclick="toggleSectionArg('moleculas')" class="w-full bg-[#0D2847] hover:bg-[#12365e] text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer shadow-2xs">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>Argumentar uso: Moléculas</span>
+              </span>
+              <span id="argIndicator_moleculas" class="text-[10px] text-[#A5D8E2] underline">Ver por qué</span>
+            </button>
+            <div id="argBody_moleculas" class="hidden mt-2.5 pt-2.5 border-t border-slate-200 text-xs space-y-2">
+              <div class="bg-[#EAF4F7] p-2 rounded-lg border border-[#A5D8E2]/60">
+                <span class="text-[9px] font-bold text-[#17859E] uppercase tracking-wider block">Justificación Inicial</span>
+                <p class="text-[11px] font-bold text-[#0D2847] italic">«Combinar elementos para transformar estadísticas técnicas en información fácil de interpretar»</p>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-tight">
+                <strong>Fundamentación:</strong> Agrupa números, etiquetas y tendencias en una sola unidad semántica de lectura inmediata.
+              </p>
+            </div>
+          </div>
+
+          <!-- KPI Card (Reactive) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-[#0D2847] flex items-center gap-1.5">
+                <span>📊</span> Tarjeta de cifra
+              </span>
+              <span id="badgeKpiMode" class="text-[10px] font-bold text-[#17859E] bg-[#EAF4F7] px-2 py-0.5 rounded-full capitalize">
+                Total
+              </span>
+            </div>
+
+            <div class="bg-[#EAF4F7] rounded-2xl p-4 border border-[#A5D8E2]/60 shadow-xs">
+              <div id="kpiContentGeneral">
+                <div id="kpiRegionTitle" class="text-xs font-medium text-slate-700 mb-1">Tasa de desempleo Región Metropolitana</div>
+                <div id="kpiRateValue" class="text-4xl font-extrabold text-[#0D2847] tracking-tight font-sans">11,2%</div>
+                <div class="flex items-center gap-1 text-xs font-bold text-[#17859E] mt-1.5">
+                  <span>▼</span>
+                  <span id="kpiDeltaValue">-1,1 pp en un año</span>
+                </div>
+              </div>
+
+              <div id="kpiContentGenero" class="hidden">
+                <div class="text-xs font-bold text-slate-700 mb-2">Desglose por Género</div>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                  <div class="bg-white p-2 rounded-xl border border-[#A5D8E2]/50">
+                    <span class="text-[10px] text-slate-500 font-bold block">MUJERES</span>
+                    <span id="kpiWomenRate" class="text-xl font-black text-[#0D2847]">12,6%</span>
+                    <span class="text-[10px] text-[#17859E] block">-0,8 pp anual</span>
+                  </div>
+                  <div class="bg-white p-2 rounded-xl border border-[#A5D8E2]/50">
+                    <span class="text-[10px] text-slate-500 font-bold block">HOMBRES</span>
+                    <span id="kpiMenRate" class="text-xl font-black text-[#0D2847]">10,1%</span>
+                    <span class="text-[10px] text-[#17859E] block">-1,4 pp anual</span>
+                  </div>
+                </div>
+                <div class="text-[10px] font-bold text-[#0D2847] bg-white/70 px-2 py-1 rounded-md">
+                  Brecha: <span id="kpiGenderGap" class="text-[#17859E] font-black">+2,5 pp</span> en mujeres
+                </div>
+              </div>
+
+              <div id="kpiContentEdad" class="hidden space-y-1.5 text-xs">
+                <div class="text-xs font-bold text-slate-700 mb-1">Tramos de Edad</div>
+                <div class="flex items-center justify-between bg-white px-2.5 py-1 rounded-lg border border-[#A5D8E2]/50">
+                  <span class="text-[11px] font-medium text-slate-700">Jóvenes (15-24)</span>
+                  <span id="kpiYouthRate" class="font-extrabold text-[#0D2847] text-sm">21,2%</span>
+                </div>
+                <div class="flex items-center justify-between bg-white px-2.5 py-1 rounded-lg border border-[#A5D8E2]/50">
+                  <span class="text-[11px] font-medium text-slate-700">Adultos (25-54)</span>
+                  <span id="kpiAdultRate" class="font-extrabold text-[#0D2847]">10,3%</span>
+                </div>
+                <div class="flex items-center justify-between bg-white px-2.5 py-1 rounded-lg border border-[#A5D8E2]/50">
+                  <span class="text-[11px] font-medium text-slate-700">Mayores (55+)</span>
+                  <span id="kpiElderRate" class="font-extrabold text-[#0D2847]">8,2%</span>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-2.5 border-t border-[#A5D8E2]/60 text-[10px] text-slate-600 flex items-center justify-between">
+                <span>Fuente: INE, ENE</span>
+                <span class="font-mono text-[#17859E]">Jul - Sep</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Region Selector Dropdown -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="text-xs font-bold text-[#0D2847] mb-1.5">Selector de región</div>
+            <select id="selectRegionControl" onchange="onRegionSelectChange(this.value)" class="w-full bg-white border border-slate-300 rounded-full py-2 px-3 text-xs font-medium text-[#0D2847] cursor-pointer shadow-2xs focus:ring-2 focus:ring-[#17859E] outline-none">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Map Legend -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="text-xs font-bold text-[#0D2847] mb-2">Leyenda del mapa</div>
+            <div class="w-full h-3 rounded-full bg-gradient-to-r from-[#A5D8E2] via-[#17859E] to-[#0D2847] shadow-inner"></div>
+            <div class="flex items-center justify-between text-[11px] font-bold text-[#0D2847] mt-1.5 font-mono">
+              <span>6%</span>
+              <span>12%</span>
+            </div>
+          </div>
+
+          <!-- Source line -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="text-xs font-bold text-[#0D2847] mb-1">Línea de fuente</div>
+            <p class="text-[11px] text-slate-600 leading-snug">
+              Fuente: INE - Encuesta Nacional de Empleo, trimestre móvil.
+            </p>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+          Moléculas combinadas
+        </div>
+      </div>
+
+      <!-- ==========================================
+           COLUMN 3: ORGANISMOS
+           ========================================== -->
+      <div class="bg-[#FCFAF6] rounded-3xl p-4 sm:p-5 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between space-y-4 shadow-xs">
+        <div class="space-y-4">
+          <!-- Argument Button -->
+          <div class="bg-[#FAF7F2] p-2.5 rounded-2xl border border-slate-200">
+            <button onclick="toggleSectionArg('organismos')" class="w-full bg-[#0D2847] hover:bg-[#12365e] text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer shadow-2xs">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>Argumentar uso: Organismos</span>
+              </span>
+              <span id="argIndicator_organismos" class="text-[10px] text-[#A5D8E2] underline">Ver por qué</span>
+            </button>
+            <div id="argBody_organismos" class="hidden mt-2.5 pt-2.5 border-t border-slate-200 text-xs space-y-2">
+              <div class="bg-[#EAF4F7] p-2 rounded-lg border border-[#A5D8E2]/60">
+                <span class="text-[9px] font-bold text-[#17859E] uppercase tracking-wider block">Justificación Inicial</span>
+                <p class="text-[11px] font-bold text-[#0D2847] italic">«Organizar la información en secciones completas que permitan comparar la realidad laboral de los distintos territorios»</p>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-tight">
+                <strong>Fundamentación:</strong> Integra la cartografía y fichas estadísticas en macro-secciones con coherencia editorial.
+              </p>
+            </div>
+          </div>
+
+          <!-- Ficha de tu región -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-[#0D2847] flex items-center gap-1.5">
+                <span>📍</span> Ficha de tu región
+              </span>
+              <span class="text-[10px] text-[#17859E] font-medium">Territorio</span>
+            </div>
+            <div class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-2xs">
+              <div id="orgCardRegionName" class="text-xs font-bold text-[#0D2847]">Región Metropolitana</div>
+              <div id="orgCardRate" class="text-3xl font-extrabold text-[#0D2847] tracking-tight font-sans mt-0.5">11,2%</div>
+              <div class="flex items-center gap-1 text-xs font-bold text-[#17859E] mt-1">
+                <span>▼</span>
+                <span id="orgCardDelta">-1,1 pp en un año</span>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-500 flex justify-between">
+                <span>Fuerza de trabajo:</span>
+                <strong id="orgCardLabor" class="text-slate-800 font-mono">4.390 mil pers.</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mapa de Chile con las 16 regiones oficiales -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="text-xs font-bold text-[#0D2847] mb-2 flex items-center justify-between">
+              <span class="flex items-center gap-1">
+                <span>Mapa de Chile</span>
+                <span class="text-[10px] font-bold text-[#17859E] bg-[#EAF4F7] px-1.5 py-0.2 rounded-full font-mono">16 regiones</span>
+              </span>
+              <span class="text-[9px] text-slate-400">Clic en región</span>
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 items-center bg-[#FAF7F2]/60 p-2 rounded-2xl border border-slate-200/80">
+              <!-- SVG 16 Regiones -->
+              <div class="col-span-6 flex justify-center py-1">
+                <svg id="svgChileMap" viewBox="0 0 60 275" class="w-16 h-48 drop-shadow-xs overflow-visible">
+                  <!-- Generated via JavaScript with 16 paths & pinpoint -->
+                </svg>
+              </div>
+
+              <!-- Legend and Selected Pill -->
+              <div class="col-span-6 space-y-2 text-[10px] text-slate-700">
+                <div class="bg-white p-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                  <div class="text-[9px] text-[#17859E] font-bold uppercase truncate">Seleccionada:</div>
+                  <div id="mapSelectedName" class="font-bold text-[#0D2847] text-[11px] truncate leading-tight">Región Metropolitana</div>
+                  <div id="mapSelectedRate" class="text-[10px] font-black text-[#17859E] font-mono">11,2% INE</div>
+                </div>
+
+                <div class="space-y-1 text-[9px] text-slate-600">
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-xs bg-[#0D2847] shrink-0"></div>
+                    <span>≥ 12% (Crítico)</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-xs bg-[#12365e] shrink-0"></div>
+                    <span>10% – 12%</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-xs bg-[#17859E] shrink-0"></div>
+                    <span>8% – 10%</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-xs bg-[#A5D8E2] shrink-0"></div>
+                    <span>6% – 8%</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-xs bg-[#C8EBF2] shrink-0 border border-slate-200"></div>
+                    <span>&lt; 6% (Bajo)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+          Organismos completos
+        </div>
+      </div>
+
+      <!-- ==========================================
+           COLUMN 4: PLANTILLAS (MINIMAPA)
+           ========================================== -->
+      <div class="bg-[#FCFAF6] rounded-3xl p-4 sm:p-5 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between space-y-4 shadow-xs">
+        <div class="space-y-4">
+          <!-- Argument Button -->
+          <div class="bg-[#FAF7F2] p-2.5 rounded-2xl border border-slate-200">
+            <button onclick="toggleSectionArg('plantillas')" class="w-full bg-[#0D2847] hover:bg-[#12365e] text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer shadow-2xs">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>Argumentar uso: Plantillas</span>
+              </span>
+              <span id="argIndicator_plantillas" class="text-[10px] text-[#A5D8E2] underline">Ver por qué</span>
+            </button>
+            <div id="argBody_plantillas" class="hidden mt-2.5 pt-2.5 border-t border-slate-200 text-xs space-y-2">
+              <div class="bg-[#EAF4F7] p-2 rounded-lg border border-[#A5D8E2]/60">
+                <span class="text-[9px] font-bold text-[#17859E] uppercase tracking-wider block">Justificación Inicial</span>
+                <p class="text-[11px] font-bold text-[#0D2847] italic">«Estructura vacía y adaptable a dispositivos móviles y computadores»</p>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-tight">
+                <strong>Fundamentación:</strong> Permite desacoplar el diseño técnico de los datos finales, garantizando responsive design uniforme.
+              </p>
+            </div>
+          </div>
+
+          <!-- Minimapa layout -->
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="text-xs font-bold text-[#0D2847] flex items-center gap-1.5">
+                <span>🪟</span> Minimapa
+              </span>
+              <span class="text-[10px] text-slate-500 font-mono">Layout</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs flex flex-col items-center">
+              <div class="relative w-full h-44 flex items-center justify-center py-1">
+                <svg viewBox="0 0 70 150" class="h-full">
+                  <path d="M28,8 Q34,18 31,35 Q28,55 24,80 Q20,110 26,142 Q19,136 17,115 Q18,85 22,50 Q24,25 24,8 Z" fill="#17859E" opacity="0.9"></path>
+                  <circle cx="23" cy="65" r="4.5" fill="#0D2847" stroke="#FFFFFF" stroke-width="2"></circle>
+                  <line x1="26" y1="65" x2="44" y2="65" stroke="#0D2847" stroke-width="1.5"></line>
+                </svg>
+
+                <div class="absolute right-1 top-[35%] bg-[#EAF4F7] border border-[#A5D8E2] rounded-xl px-2.5 py-1.5 text-center shadow-xs">
+                  <div id="minimapBadgeAbbr" class="text-[10px] font-bold text-[#0D2847] leading-tight">RM</div>
+                  <div id="minimapBadgeRate" class="text-xs font-extrabold text-[#0D2847] font-mono leading-tight">11,2%</div>
+                </div>
+              </div>
+
+              <div class="text-center mt-2 w-full">
+                <div id="minimapRegionName" class="text-xs font-bold text-[#0D2847]">Región Metropolitana</div>
+                <div id="minimapRegionDesc" class="text-xs text-slate-600 mt-0.5">
+                  Presenta una tasa de desempleo de 11,2%.
+                </div>
+              </div>
+
+              <div onclick="cycleNextRegion()" class="mt-3.5 w-full bg-[#EAF4F7] hover:bg-[#d8eef5] rounded-xl p-2.5 flex items-center gap-2 border border-[#A5D8E2]/50 text-left cursor-pointer transition-colors">
+                <div class="w-5 h-5 rounded-full bg-[#17859E] text-white flex items-center justify-center shrink-0 text-xs">i</div>
+                <p class="text-[10px] text-slate-700 leading-tight">
+                  Haz clic en una región para ver más detalles.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+          Plantillas adaptables
+        </div>
+      </div>
+
+      <!-- ==========================================
+           COLUMN 5: PÁGINAS (GRÁFICAS DENTRO DE MÁRGENES)
+           ========================================== -->
+      <div class="bg-[#FCFAF6] rounded-3xl p-4 sm:p-5 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between space-y-4 shadow-xs overflow-hidden box-border">
+        <div class="space-y-4 w-full max-w-full overflow-hidden">
+          <!-- Argument Button -->
+          <div class="bg-[#FAF7F2] p-2.5 rounded-2xl border border-slate-200">
+            <button onclick="toggleSectionArg('paginas')" class="w-full bg-[#0D2847] hover:bg-[#12365e] text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer shadow-2xs">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#A5D8E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>Argumentar uso: Páginas</span>
+              </span>
+              <span id="argIndicator_paginas" class="text-[10px] text-[#A5D8E2] underline">Ver por qué</span>
+            </button>
+            <div id="argBody_paginas" class="hidden mt-2.5 pt-2.5 border-t border-slate-200 text-xs space-y-2">
+              <div class="bg-[#EAF4F7] p-2 rounded-lg border border-[#A5D8E2]/60">
+                <span class="text-[9px] font-bold text-[#17859E] uppercase tracking-wider block">Justificación Inicial</span>
+                <p class="text-[11px] font-bold text-[#0D2847] italic">«Incorporación de datos reales del INE para una plataforma escalable y consistente»</p>
+              </div>
+              <p class="text-[10px] text-slate-600 leading-tight">
+                <strong>Fundamentación:</strong> Valida el sistema con datos numéricos auténticos para erradicar errores de interpretación.
+              </p>
+            </div>
+          </div>
+
+          <!-- Página Principal Inner Mock Page -->
+          <div class="w-full max-w-full overflow-hidden">
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="text-xs font-bold text-[#0D2847] flex items-center gap-1.5">
+                <span>📄</span> Página principal
+              </span>
+              <span class="text-[9px] bg-[#17859E] text-white px-2 py-0.5 rounded font-mono">En vivo</span>
+            </div>
+
+            <div class="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-2xs space-y-2.5 overflow-hidden w-full max-w-full box-border">
+              <!-- Banner Title -->
+              <div class="w-full bg-[#0D2847] text-white py-2 px-3 rounded-full text-center text-xs font-bold shadow-xs">
+                Observatorio Laboral
+              </div>
+
+              <!-- In-Page Demographic Pills -->
+              <div class="flex items-center justify-center gap-1 bg-[#FAF7F2] p-1 rounded-xl border border-slate-200 text-[10px]">
+                <button id="pillDemoGeneral" onclick="setDemographicMode('general')" class="flex-1 py-1 px-2 rounded-lg font-bold transition-all cursor-pointer bg-[#0D2847] text-white shadow-2xs">
+                  Total
+                </button>
+                <button id="pillDemoGenero" onclick="setDemographicMode('genero')" class="flex-1 py-1 px-2 rounded-lg font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                  Género
+                </button>
+                <button id="pillDemoEdad" onclick="setDemographicMode('edad')" class="flex-1 py-1 px-2 rounded-lg font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900">
+                  Edad
+                </button>
+              </div>
+
+              <!-- Main National Stat -->
+              <div class="text-center pt-1.5 pb-0.5">
+                <div id="pageMainSubtitle" class="text-xs text-slate-600 font-medium tracking-tight">Tasa de desempleo nacional</div>
+                <div id="pageMainNumber" class="text-4xl font-extrabold text-[#0D2847] tracking-tight font-sans mt-0.5">11,2%</div>
+                <div class="flex items-center justify-center gap-1.5 text-xs font-bold text-[#17859E] mt-1">
+                  <span class="text-sm">▼</span>
+                  <span id="pageMainDelta">-1,1 pp en un año</span>
+                </div>
+              </div>
+
+              <!-- Chart Area (Strictly within margins) -->
+              <div class="my-2 p-2 sm:p-2.5 bg-[#FAF7F2]/90 rounded-xl border border-slate-200/90 shadow-2xs w-full max-w-full overflow-hidden box-border">
+                
+                <!-- 1. GENERAL SERIES (6 BARS GRID) -->
+                <div id="chartContainerGeneral" class="w-full max-w-full">
+                  <div class="grid grid-cols-6 gap-1 sm:gap-1.5 items-end w-full h-28 pt-3 pb-1">
+                    <div class="flex flex-col items-center group w-full min-w-0">
+                      <span class="text-[8px] sm:text-[9px] font-bold text-slate-600 mb-1 truncate">8,4%</span>
+                      <div class="w-full max-w-[20px] sm:max-w-[24px] bg-[#A5D8E2] h-12 rounded-t-sm shadow-2xs"></div>
+                      <div class="w-full h-px bg-slate-300 mt-0.5"></div>
+                      <span class="text-[7.5px] sm:text-[8px] font-mono text-slate-500 mt-1.5 truncate">Q1'23</span>
+                    </div>
+                    <div class="flex flex-col items-center group w-full min-w-0">
+                      <span class="text-[8px] sm:text-[9px] font-bold text-slate-600 mb-1 truncate">9,2%</span>
+                      <div class="w-full max-w-[20px] sm:max-w-[24px] bg-[#17859E] h-16 rounded-t-sm shadow-2xs"></div>
+                      <div class="w-full h-px bg-slate-300 mt-0.5"></div>
+                      <span class="text-[7.5px] sm:text-[8px] font-mono text-slate-500 mt-1.5 truncate">Q3'23</span>
+                    </div>
+                    <div class="flex flex-col items-center group w-full min-w-0">
+                      <span class="text-[8px] sm:text-[9px] font-black text-[#0D2847] mb-1 bg-white px-1 py-0.2 rounded-full shadow-2xs border border-[#17859E]/30 truncate">11,2%</span>
+                      <div class="w-full max-w-[20px] sm:max-w-[24px] bg-[#0D2847] h-22 rounded-t-sm shadow-xs ring-1 ring-[#17859E]/40"></div>
+                      <div class="w-full h-px bg-[#0D2847] mt-0.5"></div>
+                      <span class="text-[7.5px] sm:text-[8px] font-mono font-bold text-[#0D2847] mt-1.5 truncate">Q1'24</span>
+                    </div>
+                    <div class="flex flex-col items-center group w-full min-w-0">
+                      <span class="text-[8px] sm:text-[9px] font-bold text-slate-600 mb-1 truncate">10,1%</span>
+                      <div class="w-full max-w-[20px] sm:max-w-[24px] bg-[#12365e] h-19 rounded-t-sm shadow-2xs"></div>
+                      <div class="w-full h-px bg-slate-300 mt-0.5"></div>
+                      <span class="text-[7.5px] sm:text-[8px] font-mono text-slate-500 mt-1.5 truncate">Q3'24</span>
+                    </div>
+                    <div class="flex flex-col items-center group w-full min-w-0">
+                      <span class="text-[8px] sm:text-[9px] font-bold text-slate-600 mb-1 truncate">9,0%</span>
+                      <div class="w-full max-w-[20px] sm:max-w-[24px] bg-[#17859E] h-15 rounded-t-sm shadow-2xs"></div>
+                      <div class="w-full h-px bg-slate-300 mt-0.5"></div>
+                      <span class="text-[7.5px] sm:text-[8px] font-mono text-slate-500 mt-1.5 truncate">Q1'25</span>
+                    </div>
+                    <div class="flex flex-col items-center group w-full min-w-0">
+                      <span class="text-[8px] sm:text-[9px] font-black text-[#0D2847] mb-1 bg-white px-1 py-0.2 rounded-full shadow-2xs border border-[#17859E]/30 truncate">10,8%</span>
+                      <div class="w-full max-w-[20px] sm:max-w-[24px] bg-[#0D2847] h-21 rounded-t-sm shadow-xs"></div>
+                      <div class="w-full h-px bg-[#0D2847] mt-0.5"></div>
+                      <span class="text-[7.5px] sm:text-[8px] font-mono font-bold text-[#0D2847] mt-1.5 truncate">Actual</span>
+                    </div>
+                  </div>
+                  <div class="text-[8.5px] sm:text-[9px] text-slate-400 text-center mt-2 font-medium truncate">
+                    Evolución trimestres móviles (INE)
+                  </div>
+                </div>
+
+                <!-- 2. GÉNERO (2 BARS) -->
+                <div id="chartContainerGenero" class="hidden w-full max-w-full">
+                  <div class="flex items-end justify-around w-full h-28 pt-3 pb-1 px-2">
+                    <div class="flex flex-col items-center min-w-0">
+                      <span id="chartWomenRate" class="text-[10px] sm:text-[11px] font-black text-[#0D2847] mb-1.5 bg-white px-2 py-0.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap">12,6%</span>
+                      <div class="w-8 sm:w-10 bg-[#0D2847] h-22 rounded-t-lg shadow-sm"></div>
+                      <div class="w-12 sm:w-14 h-px bg-[#0D2847] mt-0.5"></div>
+                      <span class="text-[11px] font-bold text-[#0D2847] mt-2 truncate">Mujeres</span>
+                      <span class="text-[8.5px] text-slate-500 mt-0.5 truncate">Tasa femenina</span>
+                    </div>
+                    <div class="flex flex-col items-center min-w-0">
+                      <span id="chartMenRate" class="text-[10px] sm:text-[11px] font-black text-[#17859E] mb-1.5 bg-white px-2 py-0.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap">10,1%</span>
+                      <div class="w-8 sm:w-10 bg-[#17859E] h-17 rounded-t-lg shadow-sm"></div>
+                      <div class="w-12 sm:w-14 h-px bg-[#17859E] mt-0.5"></div>
+                      <span class="text-[11px] font-bold text-slate-700 mt-2 truncate">Hombres</span>
+                      <span class="text-[8.5px] text-slate-500 mt-0.5 truncate">Tasa masculina</span>
+                    </div>
+                  </div>
+                  <div class="mt-2.5 py-1.5 px-2 bg-white rounded-lg border border-[#A5D8E2]/60 text-center shadow-2xs w-full">
+                    <span id="chartGenderBanner" class="text-[10px] sm:text-[10.5px] font-bold text-[#0D2847] leading-tight block truncate">
+                      Brecha de género: <span class="text-[#17859E] font-black">+2,5 pp</span> en mujeres
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 3. EDAD (3 BARS) -->
+                <div id="chartContainerEdad" class="hidden w-full max-w-full">
+                  <div class="grid grid-cols-3 gap-2 sm:gap-3 items-end w-full h-28 pt-3 pb-1 px-1">
+                    <div class="flex flex-col items-center min-w-0">
+                      <span id="chartYouthRate" class="text-[9px] sm:text-[10px] font-black text-[#0D2847] mb-1.5 bg-white px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap truncate">21,2%</span>
+                      <div class="w-6 sm:w-7.5 bg-[#0D2847] h-22 rounded-t-md shadow-sm ring-1 ring-[#17859E]/40"></div>
+                      <div class="w-full h-px bg-[#0D2847] mt-0.5"></div>
+                      <span class="text-[10px] font-bold text-[#0D2847] mt-2 truncate">15-24</span>
+                      <span class="text-[8.5px] text-[#17859E] font-bold truncate">Jóvenes</span>
+                    </div>
+                    <div class="flex flex-col items-center min-w-0">
+                      <span id="chartAdultRate" class="text-[9px] sm:text-[10px] font-black text-[#17859E] mb-1.5 bg-white px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap truncate">10,3%</span>
+                      <div class="w-6 sm:w-7.5 bg-[#17859E] h-15 rounded-t-md shadow-sm"></div>
+                      <div class="w-full h-px bg-[#17859E] mt-0.5"></div>
+                      <span class="text-[10px] font-bold text-slate-700 mt-2 truncate">25-54</span>
+                      <span class="text-[8.5px] text-slate-500 truncate">Adultos</span>
+                    </div>
+                    <div class="flex flex-col items-center min-w-0">
+                      <span id="chartElderRate" class="text-[9px] sm:text-[10px] font-black text-slate-700 mb-1.5 bg-white px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs whitespace-nowrap truncate">8,2%</span>
+                      <div class="w-6 sm:w-7.5 bg-[#A5D8E2] h-10 rounded-t-md shadow-sm"></div>
+                      <div class="w-full h-px bg-[#A5D8E2] mt-0.5"></div>
+                      <span class="text-[10px] font-bold text-slate-700 mt-2 truncate">55+</span>
+                      <span class="text-[8.5px] text-slate-500 truncate">Mayores</span>
+                    </div>
+                  </div>
+                  <div class="mt-2.5 py-1.5 px-2 bg-white rounded-lg border border-[#A5D8E2]/60 text-center shadow-2xs w-full">
+                    <span id="chartAgeBanner" class="text-[10px] sm:text-[10.5px] font-bold text-[#0D2847] leading-tight block truncate">
+                      Jóvenes: <span class="text-[#17859E] font-black">21,2%</span> (duplica media)
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Source -->
+              <div class="text-center pt-1.5 pb-0.5 border-t border-slate-100 text-[10px] text-slate-500 font-medium">
+                Fuente: INE - Encuesta Nacional de Empleo (ENE), trimestre móvil
+              </div>
+
+              <!-- Callout card -->
+              <div class="mt-2 bg-[#EAF4F7] rounded-xl p-2.5 flex items-center gap-2 border border-[#A5D8E2]/60 text-left">
+                <div class="w-7 h-7 rounded-full bg-white border border-[#A5D8E2] flex items-center justify-center text-[#17859E] shrink-0 text-xs">
+                  💡
+                </div>
+                <p class="text-[10.5px] text-slate-700 leading-snug font-medium">
+                  Entérate de las cifras de desempleo en Chile de forma simple, clara y con rigor oficial.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-100">
+          Páginas con datos reales
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TRANSVERSAL CRITERIA FOOTER BAR -->
+    <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs">
+      <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+        Criterios transversales de desarrollo
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-[#FAF7F2] p-3 rounded-2xl border border-slate-200 flex items-start gap-2.5">
+          <span class="text-lg">📈</span>
+          <div>
+            <div class="text-xs font-bold text-[#0D2847]">Estados</div>
+            <div class="text-[11px] text-slate-600">Carga, error, foco interactivo y ausencia de datos.</div>
+          </div>
+        </div>
+        <div class="bg-[#FAF7F2] p-3 rounded-2xl border border-slate-200 flex items-start gap-2.5">
+          <span class="text-lg">🗄️</span>
+          <div>
+            <div class="text-xs font-bold text-[#0D2847]">Datos y voz</div>
+            <div class="text-[11px] text-slate-600">Formato homogéneo, fechas INE y lenguaje cívico.</div>
+          </div>
+        </div>
+        <div class="bg-[#FAF7F2] p-3 rounded-2xl border border-slate-200 flex items-start gap-2.5">
+          <span class="text-lg">♿</span>
+          <div>
+            <div class="text-xs font-bold text-[#0D2847]">Accesibilidad</div>
+            <div class="text-[11px] text-slate-600">Contraste WCAG AA, legibilidad tipográfica y navegación.</div>
+          </div>
+        </div>
+        <div class="bg-[#FAF7F2] p-3 rounded-2xl border border-slate-200 flex items-start gap-2.5">
+          <span class="text-lg">🤖</span>
+          <div>
+            <div class="text-xs font-bold text-[#0D2847]">Inteligencia Artificial</div>
+            <div class="text-[11px] text-slate-600">Fundamentada exclusivamente en fuentes oficiales del INE.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLOSING BANNER -->
+    <div class="bg-[#0D2847] text-white rounded-3xl p-6 text-center shadow-lg border border-[#17859E]/40 space-y-1.5">
+      <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight font-sans">
+        Democratizar el acceso a las estadísticas del desempleo.
+      </h2>
+      <p class="text-sm sm:text-base text-[#A5D8E2] font-medium">
+        Una experiencia digital clara, confiable y accesible para toda la ciudadanía.
+      </p>
+    </div>
+
+    <!-- FOOTER CREDITS -->
+    <footer class="pt-2 pb-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 border-t border-slate-200">
+      <div>
+        <span class="font-bold text-[#0D2847]">Observatorio Laboral</span> · Proyecto de Periodismo & Diseño Digital
+      </div>
+      <div class="text-[11px] text-slate-400">
+        Basado en metodología Atomic Design de Brad Frost · INE Chile 2024
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- MODAL: ¿POR QUÉ CADA BOTÓN? -->
+  <div id="modalWhy" class="fixed inset-0 z-50 bg-[#0D2847]/75 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden border border-slate-200">
+      <div class="p-4 sm:p-5 bg-[#0D2847] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-[#17859E] flex items-center justify-center font-bold text-sm">?</div>
+          <div>
+            <h3 class="font-extrabold text-base leading-tight">¿Por qué cada botón e interacción?</h3>
+            <p class="text-xs text-[#A5D8E2]">Fundamentación funcional, periodística y de accesibilidad</p>
+          </div>
+        </div>
+        <button onclick="closeWhyModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer text-lg">×</button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-4 text-xs">
+        <div class="p-3 bg-[#FAF7F2] rounded-xl border border-slate-200">
+          <h4 class="font-bold text-[#0D2847] text-sm mb-1">Botón «Cambiar región →»</h4>
+          <p class="text-slate-600 mb-1"><strong>Funcional:</strong> Permite ciclar rápidamente por las 16 regiones de Chile sin desplegar menús.</p>
+          <p class="text-slate-600 mb-1"><strong>Periodístico:</strong> Descentraliza la mirada mediática tradicional, visibilizando la diversidad laboral de regiones como Araucanía (10,4%) o Magallanes (5,2%).</p>
+          <p class="text-slate-600"><strong>Accesibilidad:</strong> Contraste superior a 13:1 y área táctil mayor a 44px.</p>
+        </div>
+        <div class="p-3 bg-[#FAF7F2] rounded-xl border border-slate-200">
+          <h4 class="font-bold text-[#0D2847] text-sm mb-1">Botones Demográficos («Género» y «Edad»)</h4>
+          <p class="text-slate-600 mb-1"><strong>Funcional:</strong> Segmenta instantáneamente las series sin recargar la página.</p>
+          <p class="text-slate-600 mb-1"><strong>Periodístico:</strong> Evidencia la brecha estructural de género (+2,5 pp en mujeres) y el desempleo juvenil (21,2%), problemas críticos del mercado del trabajo chileno.</p>
+          <p class="text-slate-600"><strong>Accesibilidad:</strong> Uso de tipografía y contraste neutro en lugar de códigos cromáticos estereotipados.</p>
+        </div>
+        <div class="p-3 bg-[#FAF7F2] rounded-xl border border-slate-200">
+          <h4 class="font-bold text-[#0D2847] text-sm mb-1">Selector de Región ▾</h4>
+          <p class="text-slate-600 mb-1"><strong>Funcional:</strong> Acceso directo en 1 clic a cualquiera de las 16 regiones oficiales.</p>
+          <p class="text-slate-600"><strong>Accesibilidad:</strong> Compatible con teclado (flechas arriba/abajo) y lectores de pantalla.</p>
+        </div>
+      </div>
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-right">
+        <button onclick="closeWhyModal()" class="px-4 py-1.5 rounded-xl bg-[#0D2847] text-white font-bold text-xs cursor-pointer">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION FOR COPY TOKEN -->
+  <div id="toastCopied" class="fixed bottom-6 right-6 z-50 bg-[#0D2847] text-white px-4 py-2.5 rounded-2xl shadow-xl border border-[#17859E] flex items-center gap-2 text-xs font-bold opacity-0 transition-opacity pointer-events-none">
+    <span>✓</span>
+    <span id="toastMsg">Copiado al portapapeles</span>
+  </div>
+
+  <!-- JAVASCRIPT: DATA & INTERACTIVITY -->
+  <script>
+    // 16 REGIONS DATA (INE CHILE)
+    const REGIONS_DATA = [
+      { id: 'arica', name: 'Arica y Parinacota', num: 'XV', rate: 8.9, deltaYoY: -0.4, laborForce: 132000, d: 'M25,4 L39,6 L38,18 L25,16 Z', cx: 31, cy: 11,
+        demo: { mujeres: 10.2, hombres: 7.8, jovenes: 17.6, adultos: 8.3, mayores: 6.1 } },
+      { id: 'tarapaca', name: 'Tarapacá', num: 'I', rate: 8.5, deltaYoY: -0.2, laborForce: 198000, d: 'M25,18 L38,20 L37,34 L24,32 Z', cx: 30, cy: 26,
+        demo: { mujeres: 9.6, hombres: 7.6, jovenes: 16.8, adultos: 8.0, mayores: 5.8 } },
+      { id: 'antofagasta', name: 'Antofagasta', num: 'II', rate: 7.9, deltaYoY: -0.8, laborForce: 377000, d: 'M24,34 L37,36 L35,53 L23,50 Z', cx: 29, cy: 44,
+        demo: { mujeres: 9.2, hombres: 7.0, jovenes: 15.4, adultos: 7.3, mayores: 5.4 } },
+      { id: 'atacama', name: 'Atacama', num: 'III', rate: 9.8, deltaYoY: +0.4, laborForce: 155100, d: 'M23,53 L35,55 L33,70 L22,67 Z', cx: 28, cy: 62,
+        demo: { mujeres: 11.2, hombres: 8.7, jovenes: 19.4, adultos: 9.1, mayores: 6.9 } },
+      { id: 'coquimbo', name: 'Coquimbo', num: 'IV', rate: 10.1, deltaYoY: +0.6, laborForce: 426700, d: 'M22,70 L33,72 L31,87 L21,85 Z', cx: 27, cy: 79,
+        demo: { mujeres: 11.6, hombres: 8.9, jovenes: 20.3, adultos: 9.4, mayores: 7.2 } },
+      { id: 'valpo', name: 'Valparaíso', num: 'V', rate: 9.1, deltaYoY: +0.3, laborForce: 1015000, d: 'M21,87 L28,89 L27,101 L20,99 Z', cx: 24, cy: 94,
+        demo: { mujeres: 10.4, hombres: 8.1, jovenes: 18.5, adultos: 8.4, mayores: 6.7 } },
+      { id: 'rm', name: 'Región Metropolitana', num: 'RM', rate: 11.2, deltaYoY: -1.1, laborForce: 4390000, d: 'M28,89 L36,91 L35,102 L27,101 Z', cx: 31, cy: 95,
+        demo: { mujeres: 12.6, hombres: 10.1, jovenes: 21.2, adultos: 10.3, mayores: 8.2 } },
+      { id: 'ohiggins', name: "O'Higgins", num: 'VI', rate: 8.6, deltaYoY: -0.5, laborForce: 489500, d: 'M20,101 L35,102 L33,115 L19,113 Z', cx: 27, cy: 108,
+        demo: { mujeres: 9.8, hombres: 7.7, jovenes: 17.1, adultos: 8.0, mayores: 6.2 } },
+      { id: 'maule', name: 'Maule', num: 'VII', rate: 8.0, deltaYoY: -0.7, laborForce: 545000, d: 'M19,115 L33,117 L31,130 L18,128 Z', cx: 25, cy: 122,
+        demo: { mujeres: 9.3, hombres: 7.0, jovenes: 16.1, adultos: 7.5, mayores: 5.7 } },
+      { id: 'nuble', name: 'Ñuble', num: 'XVI', rate: 9.5, deltaYoY: +0.2, laborForce: 243100, d: 'M18,130 L31,132 L30,143 L17,141 Z', cx: 24, cy: 136,
+        demo: { mujeres: 10.8, hombres: 8.4, jovenes: 19.1, adultos: 8.8, mayores: 6.9 } },
+      { id: 'biobio', name: 'Biobío', num: 'VIII', rate: 8.4, deltaYoY: -0.5, laborForce: 799000, d: 'M17,143 L30,145 L28,157 L16,155 Z', cx: 23, cy: 150,
+        demo: { mujeres: 9.7, hombres: 7.4, jovenes: 16.9, adultos: 7.8, mayores: 5.9 } },
+      { id: 'araucania', name: 'La Araucanía', num: 'IX', rate: 10.4, deltaYoY: +1.1, laborForce: 470000, d: 'M16,157 L28,159 L27,172 L15,170 Z', cx: 22, cy: 165,
+        demo: { mujeres: 11.9, hombres: 9.2, jovenes: 22.1, adultos: 9.6, mayores: 7.5 } },
+      { id: 'losrios', name: 'Los Ríos', num: 'XIV', rate: 8.8, deltaYoY: -0.3, laborForce: 195400, d: 'M15,172 L27,174 L26,187 L14,185 Z', cx: 21, cy: 179,
+        demo: { mujeres: 9.9, hombres: 7.9, jovenes: 17.5, adultos: 8.2, mayores: 6.3 } },
+      { id: 'loslagos', name: 'Los Lagos', num: 'X', rate: 7.6, deltaYoY: -0.6, laborForce: 453900, d: 'M14,187 L26,189 L28,208 L19,211 L13,202 Z', cx: 20, cy: 199,
+        demo: { mujeres: 8.8, hombres: 6.7, jovenes: 15.2, adultos: 7.1, mayores: 5.3 } },
+      { id: 'aysen', name: 'Aysén', num: 'XI', rate: 4.8, deltaYoY: -0.2, laborForce: 58300, d: 'M15,210 L28,212 L25,234 L14,231 L17,223 Z', cx: 21, cy: 222,
+        demo: { mujeres: 5.6, hombres: 4.2, jovenes: 10.1, adultos: 4.4, mayores: 3.5 } },
+      { id: 'magallanes', name: 'Magallanes', num: 'XII', rate: 5.2, deltaYoY: -0.3, laborForce: 94000, d: 'M14,234 L25,236 L29,258 L19,270 L10,256 L13,246 Z', cx: 20, cy: 252,
+        demo: { mujeres: 6.1, hombres: 4.5, jovenes: 10.8, adultos: 4.8, mayores: 3.9 } }
+    ];
+
+    let currentRegionId = 'rm';
+    let currentDemographicMode = 'general';
+    let allArgsOpen = false;
+
+    // Helper: color by rate
+    function getRegionFillColor(rate, isSelected) {
+      if (isSelected) return '#0D2847';
+      if (rate >= 12.0) return '#0D2847';
+      if (rate >= 10.0) return '#12365e';
+      if (rate >= 8.0) return '#17859E';
+      if (rate >= 6.0) return '#A5D8E2';
+      return '#C8EBF2';
+    }
+
+    // Populate Selector Dropdown
+    function populateDropdown() {
+      const select = document.getElementById('selectRegionControl');
+      select.innerHTML = '';
+      REGIONS_DATA.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = `${r.name} (${r.rate.toFixed(1).replace('.', ',')}%)`;
+        if (r.id === currentRegionId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    // Render 16-Region SVG Map
+    function renderChileMap() {
+      const svg = document.getElementById('svgChileMap');
+      const activeReg = REGIONS_DATA.find(r => r.id === currentRegionId) || REGIONS_DATA[6];
+      
+      let html = '';
+      REGIONS_DATA.forEach(r => {
+        const isSelected = r.id === currentRegionId;
+        const fill = getRegionFillColor(r.rate, isSelected);
+        html += `<path d="${r.d}" fill="${fill}" stroke="${isSelected ? '#FFFFFF' : '#FAF7F2'}" stroke-width="${isSelected ? '1.5' : '0.5'}" class="cursor-pointer hover:opacity-80 transition-all" onclick="selectRegion('${r.id}')"><title>${r.name} (${r.num}): ${r.rate.toFixed(1).replace('.', ',')}% INE</title></path>`;
+      });
+
+      // Pinpoint circle
+      html += `<circle cx="${activeReg.cx}" cy="${activeReg.cy}" r="4" fill="#17859E" stroke="#FFFFFF" stroke-width="1.5" class="pointer-events-none" />`;
+      svg.innerHTML = html;
+    }
+
+    // Update UI on Region or Mode Change
+    function updateUI() {
+      const reg = REGIONS_DATA.find(r => r.id === currentRegionId) || REGIONS_DATA[6];
+
+      // 1. Column 2 KPI Card
+      document.getElementById('kpiRegionTitle').textContent = `Tasa de desempleo ${reg.name}`;
+      document.getElementById('kpiRateValue').textContent = `${reg.rate.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('kpiDeltaValue').textContent = `${reg.deltaYoY > 0 ? '+' : ''}${reg.deltaYoY.toFixed(1).replace('.', ',')} pp en un año`;
+      document.getElementById('kpiWomenRate').textContent = `${reg.demo.mujeres.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('kpiMenRate').textContent = `${reg.demo.hombres.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('kpiGenderGap').textContent = `+${(reg.demo.mujeres - reg.demo.hombres).toFixed(1).replace('.', ',')} pp`;
+      document.getElementById('kpiYouthRate').textContent = `${reg.demo.jovenes.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('kpiAdultRate').textContent = `${reg.demo.adultos.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('kpiElderRate').textContent = `${reg.demo.mayores.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('selectRegionControl').value = reg.id;
+
+      // 2. Column 3 Organismos
+      document.getElementById('orgCardRegionName').textContent = reg.name;
+      document.getElementById('orgCardRate').textContent = `${reg.rate.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('orgCardDelta').textContent = `${reg.deltaYoY > 0 ? '+' : ''}${reg.deltaYoY.toFixed(1).replace('.', ',')} pp en un año`;
+      document.getElementById('orgCardLabor').textContent = `${(reg.laborForce / 1000).toFixed(0)} mil pers.`;
+      document.getElementById('mapSelectedName').textContent = reg.name;
+      document.getElementById('mapSelectedRate').textContent = `${reg.rate.toFixed(1).replace('.', ',')}% INE`;
+
+      // 3. Column 4 Minimapa
+      document.getElementById('minimapBadgeAbbr').textContent = reg.id === 'rm' ? 'RM' : reg.name.substring(0, 3).toUpperCase();
+      document.getElementById('minimapBadgeRate').textContent = `${reg.rate.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('minimapRegionName').textContent = reg.name;
+      document.getElementById('minimapRegionDesc').textContent = `Presenta una tasa de desempleo de ${reg.rate.toFixed(1).replace('.', ',')}%.`;
+
+      // 4. Column 5 Pages
+      document.getElementById('chartWomenRate').textContent = `${reg.demo.mujeres.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('chartMenRate').textContent = `${reg.demo.hombres.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('chartGenderBanner').innerHTML = `Brecha de género: <span class="text-[#17859E] font-black">+${(reg.demo.mujeres - reg.demo.hombres).toFixed(1).replace('.', ',')} pp</span> en ${reg.name}`;
+      document.getElementById('chartYouthRate').textContent = `${reg.demo.jovenes.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('chartAdultRate').textContent = `${reg.demo.adultos.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('chartElderRate').textContent = `${reg.demo.mayores.toFixed(1).replace('.', ',')}%`;
+      document.getElementById('chartAgeBanner').innerHTML = `Jóvenes ${reg.name}: <span class="text-[#17859E] font-black">${reg.demo.jovenes.toFixed(1).replace('.', ',')}%</span> (duplica media)`;
+
+      // Main Pages Number
+      if (currentDemographicMode === 'general') {
+        document.getElementById('pageMainSubtitle').textContent = 'Tasa de desempleo nacional';
+        document.getElementById('pageMainNumber').textContent = `${reg.rate.toFixed(1).replace('.', ',')}%`;
+        document.getElementById('pageMainDelta').textContent = `${reg.deltaYoY > 0 ? '+' : ''}${reg.deltaYoY.toFixed(1).replace('.', ',')} pp en un año`;
+      } else if (currentDemographicMode === 'genero') {
+        document.getElementById('pageMainSubtitle').textContent = 'Desempleo por Género (Mujeres)';
+        document.getElementById('pageMainNumber').textContent = `${reg.demo.mujeres.toFixed(1).replace('.', ',')}%`;
+        document.getElementById('pageMainDelta').textContent = `Brecha: +${(reg.demo.mujeres - reg.demo.hombres).toFixed(1).replace('.', ',')} pp`;
+      } else if (currentDemographicMode === 'edad') {
+        document.getElementById('pageMainSubtitle').textContent = 'Desempleo Juvenil (15 a 24 años)';
+        document.getElementById('pageMainNumber').textContent = `${reg.demo.jovenes.toFixed(1).replace('.', ',')}%`;
+        document.getElementById('pageMainDelta').textContent = `Jóvenes duplican el promedio país`;
+      }
+
+      renderChileMap();
+    }
+
+    // Set Demographic Mode
+    function setDemographicMode(mode) {
+      currentDemographicMode = mode;
+      document.getElementById('badgeKpiMode').textContent = mode;
+
+      // Update Header Buttons
+      ['General', 'Genero', 'Edad'].forEach(m => {
+        const isSelected = m.toLowerCase() === mode;
+        const btn = document.getElementById(`btnDemo${m}`);
+        const pill = document.getElementById(`pillDemo${m}`);
+        if (isSelected) {
+          btn.className = 'px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer bg-[#0D2847] text-white shadow-xs';
+          pill.className = 'flex-1 py-1 px-2 rounded-lg font-bold transition-all cursor-pointer bg-[#0D2847] text-white shadow-2xs';
+        } else {
+          btn.className = 'px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+          pill.className = 'flex-1 py-1 px-2 rounded-lg font-bold transition-all cursor-pointer text-slate-600 hover:text-slate-900';
+        }
+      });
+
+      // Show/Hide KPI Sections in Column 2
+      document.getElementById('kpiContentGeneral').classList.toggle('hidden', mode !== 'general');
+      document.getElementById('kpiContentGenero').classList.toggle('hidden', mode !== 'genero');
+      document.getElementById('kpiContentEdad').classList.toggle('hidden', mode !== 'edad');
+
+      // Show/Hide Chart Containers in Column 5
+      document.getElementById('chartContainerGeneral').classList.toggle('hidden', mode !== 'general');
+      document.getElementById('chartContainerGenero').classList.toggle('hidden', mode !== 'genero');
+      document.getElementById('chartContainerEdad').classList.toggle('hidden', mode !== 'edad');
+
+      updateUI();
+    }
+
+    // Select Region
+    function selectRegion(id) {
+      currentRegionId = id;
+      updateUI();
+    }
+
+    function onRegionSelectChange(id) {
+      selectRegion(id);
+    }
+
+    // Cycle Next Region
+    function cycleNextRegion() {
+      const idx = REGIONS_DATA.findIndex(r => r.id === currentRegionId);
+      const nextIdx = (idx + 1) % REGIONS_DATA.length;
+      currentRegionId = REGIONS_DATA[nextIdx].id;
+      updateUI();
+    }
+
+    // Toggle Section Arguments
+    function toggleSectionArg(sectionId) {
+      const body = document.getElementById(`argBody_${sectionId}`);
+      const ind = document.getElementById(`argIndicator_${sectionId}`);
+      const isHidden = body.classList.contains('hidden');
+      body.classList.toggle('hidden', !isHidden);
+      ind.textContent = isHidden ? 'Ocultar' : 'Ver por qué';
+    }
+
+    function toggleAllSectionArgs() {
+      allArgsOpen = !allArgsOpen;
+      ['atomos', 'moleculas', 'organismos', 'plantillas', 'paginas'].forEach(sec => {
+        const body = document.getElementById(`argBody_${sec}`);
+        const ind = document.getElementById(`argIndicator_${sec}`);
+        body.classList.toggle('hidden', !allArgsOpen);
+        ind.textContent = allArgsOpen ? 'Ocultar' : 'Ver por qué';
+      });
+      document.getElementById('txtToggleAllArgs').textContent = allArgsOpen ? 'Ocultar Justificaciones' : 'Ver Justificaciones en 5 Secciones';
+    }
+
+    // Copy HEX Token
+    function copyHex(hex, name) {
+      navigator.clipboard?.writeText(hex);
+      const toast = document.getElementById('toastCopied');
+      document.getElementById('toastMsg').textContent = `Color ${name} (${hex}) copiado`;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 1800);
+    }
+
+    // Modals
+    function openWhyModal() {
+      document.getElementById('modalWhy').classList.remove('hidden');
+    }
+    function closeWhyModal() {
+      document.getElementById('modalWhy').classList.add('hidden');
+    }
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeWhyModal();
+    });
+
+    // Initialize
+    populateDropdown();
+    updateUI();
+  </script>
+</body>
+</html>
